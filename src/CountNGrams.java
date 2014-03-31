@@ -21,7 +21,9 @@ public class CountNGrams {
                 StringTokenizer st = new StringTokenizer(str, " ,.:;\"-_(){}[]?!*^&'\n\t");
                 while(st.hasMoreTokens()) {
                     String word = st.nextToken();
-                    //hier moet shit
+                    if () {
+                        //hier moet shit
+                    }
                 }
                 str = src.readLine();
             }
