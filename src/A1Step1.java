@@ -6,31 +6,40 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 
-public class CountNGrams {
+public class A1Step1 {
 	
-	private static int n;
-	private static int m;
-	private static String[] sequence;
-	private static Hashtable<String, Integer> table = new Hashtable<String, Integer>();
-	private static String[][] array;
+	private int n;
+	private int m;
+	private String[] sequence;
+	private Hashtable<String, Integer> table = new Hashtable<String, Integer>();
+	private String[][] array;
 	
 	public static void main(String[] args) {
 
-		System.out.print("Loading");
+		
 		try{
-			n = Integer.parseInt(args[1]);
-			m = Integer.parseInt(args[2]);
-			
+			int n = Integer.parseInt(args[1]);
+			int m = Integer.parseInt(args[2]);
+			A1Step1 nGram = new A1Step1(args[0], n, m);
+			int sum = nGram.sum();
+			System.out.println(sum);
+			nGram.printArray(0,m);
 		}catch(Exception e){
 			e.printStackTrace();
 			System.exit(1);
 		}
 		
+	}
+
+	public A1Step1(String path, int n, int m) {
+		this.n = n;
+		this.m = m;
+		
 		sequence = new String[n];
 		Arrays.fill(sequence, "");
 		
 		try {
-            BufferedReader src = new BufferedReader(new FileReader(args[0]));
+            BufferedReader src = new BufferedReader(new FileReader(path));
             String str = src.readLine();
             while (str != null) {
                 StringTokenizer st = new StringTokenizer(str, " ,.:;\"(){}[]?!*^\n\t");
@@ -51,26 +60,12 @@ public class CountNGrams {
             e.printStackTrace();
             System.exit(1);
         }
-		System.out.print(".");
-		
-		hashToArray();
-		System.out.print(".");
-		
-		sortArray();
-		System.out.print(".");
-		
-		//writeArray();
-		//System.out.println(".");
-		
-		int sum = sum();
-		System.out.print(".");
-		
-		System.out.println("\nDone!\n");		
-		System.out.println(sum);
-		printArray(0,m);
-	}
 
-	private static int sum() {
+		hashToArray();
+		sortArray();
+	}
+	
+	public int sum() {
 		int sum = 0;
 		for (int i = 0; i < array.length; i++) {
 			sum += Integer.parseInt(array[i][1]);
@@ -78,13 +73,13 @@ public class CountNGrams {
 		return sum;
 	}
 
-	private static void printArray() {
+	public void printArray() {
 		for (int i = 0; i < array.length; i++) {
 			System.out.println(array[i][0] + "- " + array[i][1]);
 		}
 	}
 	
-	private static void printArray(int from, int to) {
+	public void printArray(int from, int to) {
 		if (from > to) {
 			int tmp = from;
 			from = to;
@@ -113,7 +108,7 @@ public class CountNGrams {
 		}
 	}
 
-	private static void writeArray() {
+	public void writeArray() {
 		try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
                             "Ngram.txt"), true));
@@ -128,7 +123,7 @@ public class CountNGrams {
     
 	}
 
-	private static void sortArray() {
+	private void sortArray() {
 		Arrays.sort(array, new Comparator<String[]>() {
             @Override
             public int compare(String[] entry1, String[] entry2) {
@@ -147,7 +142,7 @@ public class CountNGrams {
         });		
 	}
 
-	private static void hashToArray() {
+	private void hashToArray() {
 		int size = table.size();
 		array = new String[size][2];
 		Set<String> keySet = table.keySet();
@@ -159,7 +154,7 @@ public class CountNGrams {
 		}
 	}
 
-	private static void put(String word) {
+	private void put(String word) {
 		if (sequence.length > 1) {
 			for (int i = 1; i < sequence.length; i++) {
 				sequence[i-1] = sequence[i]; 
@@ -168,7 +163,7 @@ public class CountNGrams {
 		sequence[sequence.length-1] = word;
 	}
 	
-	private static String sequenceToString() {
+	private String sequenceToString() {
 		String seqString = "";
 		for (int i = 0; i < sequence.length; i++) {
 			if (!sequence[i].equals("")) {
@@ -176,6 +171,14 @@ public class CountNGrams {
 			}
 		}
 		return seqString;
+	}
+	
+	public Hashtable<String, Integer> getTable() {
+		return table;
+	}
+	
+	public String[][] getArray() {
+		return array;
 	}
 
 }
