@@ -44,6 +44,8 @@ public class A1Step2 {
 		table1 = ngram(n, crp);
 		array1 = hashToArray(table1);
 		array1 = sortArray(array1);
+		System.out.println("top 10 ngram:");
+		printArray(0, 10, array1);
 				
 		if (n > 1) {
 			try {
@@ -60,21 +62,29 @@ public class A1Step2 {
 
 		if (cpf != null) {
 			ArrayList<Float> conProp = conProp(n, cpf, table1, table2, sum(array1), sum2);
-			
+			System.out.println("conditionele kans van alle zinnen:");
+			for(float f : conProp) {
+				System.out.println(f);
+			}
 			try {
 				cpf = new BufferedReader(new FileReader(args[2]));
 			}catch(Exception e) {exit(1, "Reading error");}
 			ArrayList<Float> seqProp = seqProp(n, cpf, table1, table2, sum(array1), sum2);
-			
+			System.out.println("sequentiele kans van alle zinnen van lengte n:");
+			for(float f : seqProp) {
+				System.out.println(f);
+			}
 		}
 		
 		String[] A = { "know", "I", "opinion", "do", "be", "your", "not", "may", "what"};
 		String[] B = {"I", "do", "not", "know"};
 		permutations(A,0);
 		ArrayList<Float> permProp = seqProp(n, perms, table1, table2, sum(array1), sum2);
-		for(Float p : permProp) {
-			System.out.println(p.floatValue());
+		System.out.println("kans van alle permutaties:");
+		for(float f : permProp) {
+			System.out.println(f);
 		}
+		
 	}
 
 	private static ArrayList<Float> seqProp(int n, ArrayList<String[]> permutations,
