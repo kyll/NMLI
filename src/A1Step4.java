@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -19,7 +20,6 @@ public class A1Step4 {
 	private static Hashtable<String, Hashtable<String, Double>> taskModel = new Hashtable<String, Hashtable<String, Double>>();
 	private static Hashtable<String, Double> taskModel0 = new Hashtable<String, Double>();
 	private static ArrayList<String> testTagged = new ArrayList<String>();
-	private static double accuracy = 0.0;
 	private static int totalN = 0;
 	private static int correctN = 0;
 	
@@ -46,27 +46,51 @@ public class A1Step4 {
 		String testPath = args[2];
 		String testOutPath = args[3];
 		
+		System.out.println("Starting A1Step4");
+		System.out.println("training models...");
+		
 		trainTagger(trainPath);
 
 		if (smoothing) {
+			System.out.println("calculating smoothed probabilities...");
 			propSmooth();
 		}else {
+			System.out.println("calculating unsmoothed probabilities...");
 			propNoSmooth();			
 		}
 		
-		
-		/*
-		for(Entry<String, Hashtable<String, Double>> entry : taskModel.entrySet()) {
-			System.out.println(entry.getKey());
-			for(Entry<String, Double> entry2 : entry.getValue().entrySet()) {
-				System.out.println(entry.getKey());
-				System.out.println(entry2.getKey());
-				System.out.println(entry2.getValue());
-			}
-		}
-		*/
+		System.out.println("extracting and tagging sentences...");
 		tag(testPath);
-		System.out.println(((double) correctN)/totalN);
+				
+		System.out.println("writing to file...");
+		writeToFile(testOutPath);
+		
+		System.out.print("Accuracy: ");
+		System.out.println( String.format( "%.1f", (((double) correctN)/totalN)*100) + "%");
+		System.out.println("Done!");
+	}
+
+	private static void writeToFile(String testOutPath) {
+		try {			 
+			File file = new File(testOutPath);
+ 
+			// if file doesnt exists, then create it
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+ 
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+			for(String line : testTagged) {
+				bw.write(line);
+				bw.newLine();
+			}
+			bw.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	private static void propNoSmooth() {
@@ -170,12 +194,15 @@ public class A1Step4 {
 		    int n = 0;
 		    
 		    for(Entry<String, Integer> lexEntry : lex.entrySet()) {
-		    	if(lexEntry.getKey().split("/")[1].equals(tag) && lexEntry.getValue() == 1) {
+		    	String[] splitted = lexEntry.getKey().split("/");
+			    String tag2 = splitted[splitted.length-1];
+			    
+		    	if(tag2.equals(tag) && lexEntry.getValue() == 1) {
 		    		n++;
 		    	}
 		    }
 		    
-		    double prop = n/nvalue;
+		    double prop = 0.5*(n/nvalue);
 		    taskModel0.put(tag, prop);			    			    
 		}
 		taskModel0.put("STOP", 0.0);
@@ -256,10 +283,10 @@ public class A1Step4 {
 	private static void tagSentence(String[] sentence, String[] correctTags,
 			int n) {
 		if(n == 17) {
-			testTagged.add(sequenceToString(sentence, 2, 17) + "... - sentence too long");
-		}else {
-			
-			
+			testTagged.add(sequenceToString(sentence, 2, 17) + "...");
+			testTagged.add("- sentence too long -");
+			testTagged.add("=====");
+		}else {			
 			String[] newSentence = new String[n];
 			for (int j = 2; j <= n+1; j++) {
 				newSentence[j-2] = sentence[j];
@@ -272,11 +299,22 @@ public class A1Step4 {
 					correctN++;
 				}
 			}
-			testTagged.add((String) ret[1]);
+			String predictedTags = "";
+			try {
+				predictedTags = sequenceToString(((String) ret[1]).split(","), 1, n-1);
+			}catch(Exception e){}
+			
+			testTagged.add("      sentence: " + sequenceToString(newSentence,0,n-2));
+			testTagged.add("predicted tags: " + predictedTags);
+			testTagged.add("  correct tags: " + sequenceToString(correctTags, 2, n));
+			testTagged.add("=====");
 		}
 		
 	}
 
+	// viterbi algorithm from:
+	// http://en.wikibooks.org/wiki/Algorithm_Implementation/Viterbi_algorithm
+	// addapted to our needs
 	private static Object[] viterbi(String[] sentence) {
 		
 		Hashtable<String, Object[]> T = new Hashtable<String, Object[]>();
