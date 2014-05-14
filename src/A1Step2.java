@@ -45,7 +45,7 @@ public class A1Step2 {
 		array1 = hashToArray(table1);
 		array1 = sortArray(array1);
 		System.out.println("top 10 ngram:");
-		printArray(0, 10, array1);
+		//printArray(0, 10, array1);
 				
 		if (n > 1) {
 			try {
@@ -64,7 +64,7 @@ public class A1Step2 {
 			ArrayList<Float> conProp = conProp(n, cpf, table1, table2, sum(array1), sum2);
 			System.out.println("conditionele kans van alle zinnen:");
 			for(float f : conProp) {
-				System.out.println(f);
+				//System.out.println(f);
 			}
 			try {
 				cpf = new BufferedReader(new FileReader(args[2]));
@@ -72,7 +72,7 @@ public class A1Step2 {
 			ArrayList<Float> seqProp = seqProp(n, cpf, table1, table2, sum(array1), sum2);
 			System.out.println("sequentiele kans van alle zinnen van lengte n:");
 			for(float f : seqProp) {
-				System.out.println(f);
+				//System.out.println(f);
 			}
 		}
 		
@@ -117,11 +117,10 @@ public class A1Step2 {
                		}else {
                			String key1 = sequenceToString(sequence, i - n +1, i);
                			String key2 = sequenceToString(sequence, i - n +1, i-1);
-               			
                			if (table1.containsKey(key1) && table2.containsKey(key2)) {
                				p += Math.log(table1.get(key1).floatValue()/table2.get(key2).floatValue());
                			}else {
-               				p += -100000;	               				
+               				p += -100000;
                			}
                		}	               		
                	}	               	
@@ -133,9 +132,9 @@ public class A1Step2 {
 	}
 
 	private static void permutations(String[] a, int k) {
-		if(k==a.length)
+		if(k==a.length) {
 			 perms.add(a);
-		else for (int i = k; i < a.length; i++) {
+		} else for (int i = k; i < a.length; i++) {
 			String temp=a[k];
 			a[k]=a[i];
 			a[i]=temp;
