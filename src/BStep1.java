@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Stack;
 
 
@@ -32,22 +33,22 @@ public class BStep1 {
 	private static void binarize(File input, File output) throws Exception {		
 		BufferedReader reader = new BufferedReader(new FileReader(input));
 		BufferedWriter writer = new BufferedWriter(new FileWriter(output));
-		
-		Stack<String> tagStack = new Stack<String>();
-		tagStack.push("");
-		Stack<String> belongStack = new Stack<String>();
-		belongStack.push("");
 		String line = reader.readLine();
-		String outLine = "";
-		
-		boolean belongFlag = false;
-		
 		// read lines untill end of file
 		while(line != null) {
+			ArrayList<String> tags = new ArrayList<String>();		
+			String outLine = "";
+			int nBelongs = 0;
+			boolean belongFlag = false;
 			
 			// parse line char by char
 			for (int i = 0; i < line.length(); i++) {
+				for(String t : tags) {
+					System.out.print(t + "-");
+				}
+				System.out.println();
 				System.out.println(outLine);
+				System.out.println("========");
 				// if open bracket encountered, extract tag and add to tagStack
 				// add super tag to tag: i.e. S becomes S^ROOT
 				if(line.charAt(i) == '(') {
@@ -61,13 +62,15 @@ public class BStep1 {
 					
 					// appends tag with optional super tag
 					// TODO: shouldnt do for every tag, for correct see examples
-					if(!belongFlag && line.charAt(i+1) == '(') {
-						outLine += tag + tagStack.peek() + " ";
-						tagStack.push("^" + tag);
-						belongStack.push(tagStack.peek());
+					if(tags.isEmpty()) {
+						outLine += tag;
+						tags.add(tag);
+					}else if(!belongFlag && line.charAt(i+1) == '(') {
+						outLine += tag + "^" + tags.get(tags.size()-1);
+						tags.add(tag);
 					}else if(!belongFlag && line.charAt(i+1) != '(') {
 						belongFlag = true;
-						belongStack.push(tagStack.peek());
+						nBelongs++;
 						String word = "";
 						i++;
 						while(line.charAt(i) != ')') {
@@ -75,11 +78,21 @@ public class BStep1 {
 							i++;
 						}
 						i++;
-						outLine += tag + " " + word + ") ";
-						tagStack.push("^" + tag);
+						outLine += tag + " " + word + ")";
+						tags.add(tag);
+					}else if(belongFlag && line.charAt(i+1) == '(') {
+						outLine += "@" + tags.get(tags.size() - 1 - nBelongs) + "^" + tags.get(tags.size() - 2 - nBelongs) + "->";
+						for(int j = 1; j <= nBelongs; j++) {
+							outLine += "_" + tags.get(tags.size()-j);
+						}
+						outLine += " (" + tag + "^" + tags.get(tags.size()-1-nBelongs);
+						tags.add(tag);
 					}else {
-						tagStack.push("_" + tagStack.peek().substring(1));
-						outLine += "@" + belongStack.peek().substring(1) + "->" + tagStack.peek() + " ";
+						outLine += "@" + tags.get(tags.size() - 1 - nBelongs) + "^" + tags.get(tags.size() - 2 - nBelongs) + "->";
+						for(int j = 1; j <= nBelongs; j++) {
+							outLine += "_" + tags.get(tags.size()-j);
+						}
+						outLine += " ";
 						String word = "";
 						i++;
 						while(line.charAt(i) != ')') {
@@ -87,16 +100,20 @@ public class BStep1 {
 							i++;
 						}
 						outLine += "(" + tag + " " + word;
-						tagStack.push("^" + tag);
+						tags.add(tag);
 					}
 				}
 				if(line.charAt(i) == ')') {
 					outLine += ")"; 
-					tagStack.pop();
-					belongStack.pop();
+					if (!tags.isEmpty()) {
+						tags.remove(tags.size() - 1);
+					}
+				}
+				if(line.charAt(i) == ' ') {
+					outLine += " ";
 				}
 			}
-			System.out.println(outLine);
+
 			//uncomment later
 			//writer.write(outLine);
 			//writer.newLine();
