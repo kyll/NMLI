@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.StringTokenizer;
 
 
 public class BStep1 {
@@ -36,6 +37,62 @@ public class BStep1 {
 		String line = reader.readLine();
 		// read lines untill end of file
 		while(line != null) {
+			StringTokenizer parts = new StringTokenizer(line, " ");
+			ArrayList<String> tags = new ArrayList<String>();
+			String hor = "";
+			ArrayList<String> outLine = new ArrayList<String>();
+			boolean horFlag = false;
+			
+			while (parts.hasMoreTokens()) {
+				String part = parts.nextToken();
+				if (part.startsWith("(")) {
+					if (tags.isEmpty()) {
+						outLine.add(part);
+						tags.add(part.substring(1));
+					}else {
+						outLine.add(part + "^" + tags.get(tags.size()-1));
+						tags.add(part.substring(1));
+					}
+				}
+				if (part.endsWith(")")) {
+					if (horFlag) {
+						outLine.remove(outLine.size()-1);
+						outLine.add("(" + tags.get(tags.size()-1));
+						outLine.add(part);
+						tags.remove(tags.size()-1))
+					}else {
+						horFlag = true;
+						outLine.remove(outLine.size()-1);
+						outLine.add("(" + tags.get(tags.size()-1));
+						outLine.add(part);
+						tags.remove(tags.size()-1))
+					}
+				}
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			/*
 			ArrayList<String> tags = new ArrayList<String>();		
 			String outLine = "";
 			int nBelongs = 0;
@@ -92,14 +149,14 @@ public class BStep1 {
 						for(int j = 1; j <= nBelongs; j++) {
 							outLine += "_" + tags.get(tags.size()-j);
 						}
-						outLine += " ";
 						String word = "";
 						i++;
 						while(line.charAt(i) != ')') {
 							word += line.charAt(i);
 							i++;
 						}
-						outLine += "(" + tag + " " + word;
+						i++;
+						outLine += " (" + tag + " " + word + ")";
 						tags.add(tag);
 					}
 				}
@@ -118,7 +175,7 @@ public class BStep1 {
 			//writer.write(outLine);
 			//writer.newLine();
 			outLine = "";
-			
+			*/
 			line = reader.readLine();
 		}
 		
